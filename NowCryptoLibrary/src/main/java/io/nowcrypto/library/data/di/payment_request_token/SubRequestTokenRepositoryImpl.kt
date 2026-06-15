@@ -3,9 +3,8 @@ package io.nowcrypto.library.data.di.payment_request_token
 import io.nowcrypto.library.remote.payment_request_token.SubRequestTokenApi
 import io.nowcrypto.library.remote.payment_request_token.SubRequestTokenRequest
 import io.nowcrypto.library.remote.payment_request_token.SubRequestTokenResponse
-import javax.inject.Inject
 
-class SubRequestTokenRepositoryImpl @Inject constructor(
+class SubRequestTokenRepositoryImpl(
     private val api: SubRequestTokenApi
 ) : SubRequestTokenRepository {
 
@@ -16,12 +15,11 @@ class SubRequestTokenRepositoryImpl @Inject constructor(
         network: String,
         subId: String
     ): SubRequestTokenResponse {
-        // Create the body without the secret key
         val requestBody = SubRequestTokenRequest(amount, currency, network, subId)
 
-        // Pass the secretKey to the header param handled by your AuthInterceptor
+        // Pass the secretKey with "Bearer " prefix to the Authorization header
         return api.getSubscriptionRequestToken(
-            secretKey = secretKey,
+            authHeader = "Bearer $secretKey",
             request = requestBody
         )
     }

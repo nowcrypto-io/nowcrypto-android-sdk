@@ -7,7 +7,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
 
 @Keep
 data class UserSession(
@@ -17,14 +16,13 @@ data class UserSession(
     val profilePictureUrl: String?
 )
 
-class SessionManager @Inject constructor(
+class SessionManager(
     private val dataStore: DataStore<Preferences>
 ) : SessionRepository {
 
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("auth_token")
         private val IS_GUEST_KEY = booleanPreferencesKey("is_guest")
-        // Fixed: These must be stringPreferencesKey
         private val USERNAME_KEY = stringPreferencesKey("username")
         private val PROFILE_PICTURE_URL_KEY = stringPreferencesKey("profile_picture_url")
     }
@@ -39,7 +37,6 @@ class SessionManager @Inject constructor(
             prefs[TOKEN_KEY] = token
             prefs[IS_GUEST_KEY] = isGuest
 
-            // "Saving null" = Removing the key
             if (userName != null) {
                 prefs[USERNAME_KEY] = userName
             } else {

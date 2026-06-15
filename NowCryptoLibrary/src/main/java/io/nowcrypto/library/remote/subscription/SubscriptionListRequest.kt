@@ -1,4 +1,4 @@
-package io.nowcrypto.library.remote.subscription_list
+package io.nowcrypto.library.remote.subscription
 
 import androidx.annotation.Keep
 

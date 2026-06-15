@@ -7,7 +7,7 @@ import retrofit2.http.POST
 interface SubRequestTokenApi {
     @POST("payment/request/subscription/create")
     suspend fun getSubscriptionRequestToken(
-        @Header("X-Manual-Secret-Key") secretKey: String, // Pass "Bearer $secretKey" here
+        @Header("Authorization") authHeader: String,
         @Body request: SubRequestTokenRequest
     ): SubRequestTokenResponse
 }

@@ -6,9 +6,8 @@ import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
-import javax.inject.Inject
 
-class TokenAuthenticator @Inject constructor(
+class TokenAuthenticator(
     private val sessionManager: SessionManager
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
@@ -21,4 +20,3 @@ class TokenAuthenticator @Inject constructor(
         return null
     }
 }
-

@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
 }
 
@@ -61,7 +60,6 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.compose.material.icons.extended)
 
     // Retrofit (type-safe HTTP client built on OkHttp)
@@ -80,9 +78,6 @@ dependencies {
     implementation(libs.logging.interceptor)
 
     implementation(libs.kotlinx.coroutines.android)
-
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.datastore.preferences)
 

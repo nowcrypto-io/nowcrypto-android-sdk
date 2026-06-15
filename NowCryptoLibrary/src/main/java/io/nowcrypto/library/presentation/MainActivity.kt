@@ -16,9 +16,7 @@ import io.nowcrypto.library.NowCrypto
 import io.nowcrypto.library.presentation.payment_screen.PaymentScreen
 import io.nowcrypto.library.presentation.register_screen.RegistrationScreen
 import io.nowcrypto.library.presentation.login_screen.LoginScreen
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

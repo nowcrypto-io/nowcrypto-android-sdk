@@ -4,9 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.nowcrypto.library.domain.login.LoginUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import io.nowcrypto.library.data.session.SessionManager
@@ -14,8 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
 
-@HiltViewModel
-class LoginViewModel @Inject constructor(
+class LoginViewModel(
     private val loginUseCase: LoginUseCase,
     private val sessionManager: SessionManager
 ) : ViewModel() {
@@ -60,7 +57,6 @@ class LoginViewModel @Inject constructor(
                     _uiState.value = LoginUiState.LoginSuccess(result.message)
 
                 } else {
-                    // If success is false or token is missing, it's an error
                     val errorMsg = result.message
                     _uiState.value = LoginUiState.LoginError(errorMsg)
                 }
@@ -68,7 +64,6 @@ class LoginViewModel @Inject constructor(
                 val errorBody = e.response()?.errorBody()?.string()
                 val errorMessage = if (!errorBody.isNullOrEmpty()) {
                     try {
-                        // Parse JSON error response from Laravel
                         val json = JSONObject(errorBody)
                         json.optString("message", "Server error")
                     } catch (_: Exception) {

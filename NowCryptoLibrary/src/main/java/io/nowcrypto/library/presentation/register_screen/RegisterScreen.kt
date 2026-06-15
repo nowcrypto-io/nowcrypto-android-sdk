@@ -4,13 +4,16 @@ import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.nowcrypto.library.presentation.LoadingScreen
+import io.nowcrypto.library.presentation.NowCryptoViewModelFactory
 
 @Composable
 fun RegistrationScreen(
-    viewModel: RegisterViewModel = hiltViewModel(),
+    viewModel: RegisterViewModel = viewModel(
+        factory = NowCryptoViewModelFactory(LocalContext.current)
+    ),
     navController: NavController,
     message: String? = null
 ) {
@@ -45,12 +48,3 @@ fun RegistrationScreen(
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun RegistrationScreenPreview() {
-//    val navController = rememberNavController()
-//    MaterialTheme {
-//        RegistrationScreen(navController)
-//    }
-//}

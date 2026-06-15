@@ -2,9 +2,8 @@ package io.nowcrypto.library.data.di.confirm_block
 
 import io.nowcrypto.library.remote.confirm_block.ConfirmBlockApi
 import io.nowcrypto.library.remote.confirm_block.ConfirmBlockResponse
-import javax.inject.Inject
 
-class ConfirmBlockRepositoryImpl @Inject constructor(
+class ConfirmBlockRepositoryImpl(
     private val api: ConfirmBlockApi
 ) : ConfirmBlockRepository {
 

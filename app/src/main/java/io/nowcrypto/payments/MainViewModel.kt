@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import io.nowcrypto.library.NowCrypto
 import io.nowcrypto.library.data.NowCryptoResult
 import io.nowcrypto.library.remote.payment_status.PaymentStatusResponse
-import io.nowcrypto.library.remote.subscription_list.NowCryptoSubscriptionItem
+import io.nowcrypto.library.remote.subscription.NowCryptoSubscriptionItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

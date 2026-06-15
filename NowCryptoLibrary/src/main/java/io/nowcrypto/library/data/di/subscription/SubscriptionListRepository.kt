@@ -1,6 +1,6 @@
-package io.nowcrypto.library.data.di.subscription_list
+package io.nowcrypto.library.data.di.subscription
 
-import io.nowcrypto.library.remote.subscription_list.SubscriptionListResponse
+import io.nowcrypto.library.remote.subscription.SubscriptionListResponse
 
 interface SubscriptionListRepository {
     suspend fun getSubscriptionList(

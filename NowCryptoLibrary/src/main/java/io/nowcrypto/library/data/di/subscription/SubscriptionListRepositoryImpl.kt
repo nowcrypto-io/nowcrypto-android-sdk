@@ -1,8 +1,8 @@
-package io.nowcrypto.library.data.di.subscription_list
+package io.nowcrypto.library.data.di.subscription
 
-import io.nowcrypto.library.remote.subscription_list.SubscriptionListApi
-import io.nowcrypto.library.remote.subscription_list.SubscriptionListRequest
-import io.nowcrypto.library.remote.subscription_list.SubscriptionListResponse
+import io.nowcrypto.library.remote.subscription.SubscriptionListApi
+import io.nowcrypto.library.remote.subscription.SubscriptionListRequest
+import io.nowcrypto.library.remote.subscription.SubscriptionListResponse
 
 class SubscriptionListRepositoryImpl(
     private val api: SubscriptionListApi

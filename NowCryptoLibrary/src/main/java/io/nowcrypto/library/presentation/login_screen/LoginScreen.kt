@@ -2,14 +2,18 @@ package io.nowcrypto.library.presentation.login_screen
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.nowcrypto.library.presentation.LoadingScreen
+import io.nowcrypto.library.presentation.NowCryptoViewModelFactory
 import io.nowcrypto.library.presentation.Screen
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = hiltViewModel(),
+    viewModel: LoginViewModel = viewModel(
+        factory = NowCryptoViewModelFactory(LocalContext.current)
+    ),
     navController: NavController,
     message: String? = null
 ) {
@@ -53,12 +57,3 @@ fun LoginScreen(
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun RegistrationScreenPreview() {
-//    val navController = rememberNavController()
-//    MaterialTheme {
-//        RegistrationScreen(navController)
-//    }
-//}

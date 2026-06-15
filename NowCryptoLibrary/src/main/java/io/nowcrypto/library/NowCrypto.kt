@@ -3,16 +3,12 @@ package io.nowcrypto.library
 import android.content.Context
 import android.content.Intent
 import io.nowcrypto.library.data.NowCryptoResult
-import io.nowcrypto.library.domain.currency.CurrencyUseCase
-import io.nowcrypto.library.domain.payment_request_token.PaymentRequestTokenUseCase
-import io.nowcrypto.library.domain.payment_request_token.SubRequestTokenUseCase
-import io.nowcrypto.library.domain.payment_status.PaymentStatusUseCase
-import io.nowcrypto.library.domain.subscription_list.SubscriptionListUseCase
 import io.nowcrypto.library.presentation.MainActivity
 import io.nowcrypto.library.remote.payment_status.PaymentStatusResponse
-import io.nowcrypto.library.remote.subscription_list.NowCryptoSubscriptionItem
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
+import io.nowcrypto.library.remote.subscription.NowCryptoSubscriptionItem
+import io.nowcrypto.library.domain.device_id.DeviceIdProvider
+import io.nowcrypto.library.remote.subscription.NowCryptoSubscription
+import io.nowcrypto.library.data.di.NowCryptoInternal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,6 +17,7 @@ import kotlinx.coroutines.withContext
 object NowCrypto {
     private var paymentResultListener: PaymentResultListener? = null
     private var _publicKey: String? = null
+    private var deviceIdProvider: DeviceIdProvider? = null
 
     /**
      * Initialize the library once with your public API key.
@@ -28,6 +25,15 @@ object NowCrypto {
      */
     fun init(publicKey: String) {
         this._publicKey = publicKey
+    }
+
+    internal fun inject(deviceIdProvider: DeviceIdProvider) {
+        this.deviceIdProvider = deviceIdProvider
+    }
+
+    fun getDeviceId(): String {
+        return deviceIdProvider?.getDeviceId()
+            ?: throw IllegalStateException("DeviceIdProvider not injected")
     }
 
     /**
@@ -73,12 +79,9 @@ object NowCrypto {
             return
         }
 
-        // Access internal Hilt dependencies
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            LibraryEntryPoint::class.java
-        )
-        val currencyUseCase = entryPoint.getCurrencyUseCase()
+        // Access internal dependencies
+        val internal = NowCryptoInternal.getInstance(context)
+        val currencyUseCase = internal.currencyUseCase
 
         // Launch background request
         CoroutineScope(Dispatchers.IO).launch {
@@ -102,8 +105,6 @@ object NowCrypto {
                         // Parse the JSON error body manually
                         try {
                             val errorJson = e.response()?.errorBody()?.string()
-                            // Use Moshi to extract the "message" field from the raw JSON string
-                            // (Assuming you have a Moshi instance available or just use a simple regex for speed)
                             val regex = """"message"\s*:\s*"([^"]+)"""".toRegex()
                             regex.find(errorJson ?: "")?.groupValues?.get(1) ?: "Error: ${e.code()}"
                         } catch (parseException: Exception) {
@@ -131,12 +132,9 @@ object NowCrypto {
         onResult: (NowCryptoResult<String>) -> Unit
     ) {
 
-        // Access internal Hilt dependencies
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            LibraryEntryPoint::class.java
-        )
-        val paymentRequestTokenUseCase = entryPoint.getPaymentRequestTokenUseCase()
+        // Access internal dependencies
+        val internal = NowCryptoInternal.getInstance(context)
+        val paymentRequestTokenUseCase = internal.paymentRequestTokenUseCase
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -158,8 +156,6 @@ object NowCrypto {
                         // Parse the JSON error body manually
                         try {
                             val errorJson = e.response()?.errorBody()?.string()
-                            // Use Moshi to extract the "message" field from the raw JSON string
-                            // (Assuming you have a Moshi instance available or just use a simple regex for speed)
                             val regex = """"message"\s*:\s*"([^"]+)"""".toRegex()
                             regex.find(errorJson ?: "")?.groupValues?.get(1) ?: "Error: ${e.code()}"
                         } catch (parseException: Exception) {
@@ -188,12 +184,9 @@ object NowCrypto {
         onResult: (NowCryptoResult<String>) -> Unit
     ) {
 
-        // Access internal Hilt dependencies
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            LibraryEntryPoint::class.java
-        )
-        val subRequestTokenUseCase = entryPoint.getSubRequestTokenUseCase()
+        // Access internal dependencies
+        val internal = NowCryptoInternal.getInstance(context)
+        val subRequestTokenUseCase = internal.subRequestTokenUseCase
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -215,8 +208,6 @@ object NowCrypto {
                         // Parse the JSON error body manually
                         try {
                             val errorJson = e.response()?.errorBody()?.string()
-                            // Use Moshi to extract the "message" field from the raw JSON string
-                            // (Assuming you have a Moshi instance available or just use a simple regex for speed)
                             val regex = """"message"\s*:\s*"([^"]+)"""".toRegex()
                             regex.find(errorJson ?: "")?.groupValues?.get(1) ?: "Error: ${e.code()}"
                         } catch (parseException: Exception) {
@@ -248,12 +239,9 @@ object NowCrypto {
             return
         }
 
-        // Access internal Hilt dependencies
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            LibraryEntryPoint::class.java
-        )
-        val subscriptionListUseCase = entryPoint.getSubscriptionListUseCase()
+        // Access internal dependencies
+        val internal = NowCryptoInternal.getInstance(context)
+        val subscriptionListUseCase = internal.subscriptionListUseCase
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -275,8 +263,61 @@ object NowCrypto {
                         // Parse the JSON error body manually
                         try {
                             val errorJson = e.response()?.errorBody()?.string()
-                            // Use Moshi to extract the "message" field from the raw JSON string
-                            // (Assuming you have a Moshi instance available or just use a simple regex for speed)
+                            val regex = """"message"\s*:\s*"([^"]+)"""".toRegex()
+                            regex.find(errorJson ?: "")?.groupValues?.get(1) ?: "Error: ${e.code()}"
+                        } catch (parseException: Exception) {
+                            "HTTP Error: ${parseException.message}}"
+                        }
+                    } else {
+                        e.localizedMessage ?: "Network request failed"
+                    }
+
+                    onResult(NowCryptoResult.Error(message = errorMessage, exception = e))
+                }
+            }
+        }
+    }
+
+    /**
+     * Get subscription list
+     */
+    fun queryActiveSubscription(
+        context: Context,
+        onResult: (NowCryptoResult<List<NowCryptoSubscription>>) -> Unit
+    ) {
+
+        // Fail fast if the developer forgot to call NowCrypto.init()
+        val publicKey = try {
+            getRequiredPublicKey()
+        } catch (e: IllegalStateException) {
+            onResult(NowCryptoResult.Error(message = e.message ?: "NowCrypto not initialized"))
+            return
+        }
+
+        // Access internal dependencies
+        val internal = NowCryptoInternal.getInstance(context)
+        val getQueryActiveSubscriptionUseCase = internal.queryActiveSubscriptionUseCase
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = getQueryActiveSubscriptionUseCase.execute(publicKey, "")
+
+                withContext(Dispatchers.Main) {
+                    if (response.success) {
+                        onResult(NowCryptoResult.Success(response.subscriptions))
+                    } else {
+                        onResult(NowCryptoResult.Error(
+                            message = response.message,
+                            status = response.status
+                        ))
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    val errorMessage = if (e is retrofit2.HttpException) {
+                        // Parse the JSON error body manually
+                        try {
+                            val errorJson = e.response()?.errorBody()?.string()
                             val regex = """"message"\s*:\s*"([^"]+)"""".toRegex()
                             regex.find(errorJson ?: "")?.groupValues?.get(1) ?: "Error: ${e.code()}"
                         } catch (parseException: Exception) {
@@ -315,11 +356,8 @@ object NowCrypto {
             return
         }
 
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            LibraryEntryPoint::class.java
-        )
-        val getPaymentStatusUseCase = entryPoint.getPaymentStatusUseCase()
+        val internal = NowCryptoInternal.getInstance(context)
+        val getPaymentStatusUseCase = internal.paymentStatusUseCase
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -359,15 +397,5 @@ object NowCrypto {
     internal fun notifyCancelled() {
         paymentResultListener?.onCancelled()
         paymentResultListener = null
-    }
-
-    @dagger.hilt.EntryPoint
-    @dagger.hilt.InstallIn(SingletonComponent::class)
-    interface LibraryEntryPoint {
-        fun getCurrencyUseCase(): CurrencyUseCase
-        fun getPaymentRequestTokenUseCase(): PaymentRequestTokenUseCase
-        fun getSubRequestTokenUseCase(): SubRequestTokenUseCase
-        fun getSubscriptionListUseCase(): SubscriptionListUseCase
-        fun getPaymentStatusUseCase(): PaymentStatusUseCase
     }
 }

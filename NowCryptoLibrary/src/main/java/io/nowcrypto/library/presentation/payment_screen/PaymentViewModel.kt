@@ -18,17 +18,14 @@ import io.nowcrypto.library.domain.payment.PayViaCryptoUseCase
 import io.nowcrypto.library.domain.payment.PayViaTransactionIdUseCase
 import io.nowcrypto.library.domain.balance.FetchUserBalanceUseCase
 import io.nowcrypto.library.domain.confirm_block.ConfirmBlockUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import javax.inject.Inject
 
-@HiltViewModel
-class PaymentViewModel @Inject constructor(
+class PaymentViewModel(
     private val deviceIdProvider: DeviceIdProvider,
     private val sendDeviceIdUseCase: SendDeviceIdUseCase,
     private val getUserDetailsUseCase: GetUserDetailsUseCase,
@@ -260,11 +257,6 @@ class PaymentViewModel @Inject constructor(
         try {
             val result = getUserDetailsUseCase.execute(apiKey!!, paymentRequestToken)
             _paymentUiState.value = PaymentUiState.RegisterDeviceSuccess(result)
-
-            //Try register device if failed to log in using previous token
-            //if (!result.success) {
-            //    registerDevice()
-            //}
 
             if (result.walletAddress == null) {
                 _paymentUiState.value = PaymentUiState.RegisterDeviceError("Wallet address is null")
@@ -613,4 +605,3 @@ class PaymentViewModel @Inject constructor(
         }
     }
 }
-

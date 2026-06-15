@@ -4,18 +4,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.nowcrypto.library.presentation.LoadingScreen
+import io.nowcrypto.library.presentation.NowCryptoViewModelFactory
 import kotlinx.coroutines.delay
 
 @Composable
 fun PaymentScreen(
     navController: NavController,
-    viewModel: PaymentViewModel = hiltViewModel(),
+    viewModel: PaymentViewModel = viewModel(
+        factory = NowCryptoViewModelFactory(LocalContext.current)
+    ),
     apiKey: String,
     paymentRequestToken: String,
     onSuccess: (String) -> Unit,
@@ -131,87 +135,3 @@ fun PaymentScreen(
         PaymentUiState.Idle -> {}
     }
 }
-
-//@Composable
-//fun NotificationBanner(
-//    message: String,
-//    onClose: () -> Unit,
-//    onClick: () -> Unit
-//) {
-//    Surface(
-//        color = Color(0xFF2196F3),
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable { onClick() },
-//        shadowElevation = 4.dp
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .padding(horizontal = 16.dp, vertical = 8.dp),
-//            verticalAlignment = Alignment.CenterVertically,
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            Text(
-//                text = message,
-//                color = Color.White,
-//                modifier = Modifier.weight(1f)
-//            )
-//
-//            IconButton(onClick = { onClose() }) {
-//                Icon(
-//                    imageVector = Icons.Default.Close,
-//                    contentDescription = "Close",
-//                    tint = Color.White
-//                )
-//            }
-//        }
-//    }
-//}
-
-//@Preview(showBackground = true)
-//@Composable
-//fun PaymentScreenPreview() {
-//    MaterialTheme {
-//        PaymentScreen(
-//            price = 50.0,
-//            currency = "USD",
-//            WalletResponse(
-//                id = 1,
-//                uuid = "uuid1",
-//                user_id = "123",
-//                currency_code = "BTC",
-//                balance = "0.0",
-//                currency = CurrencyDetail(1, "Bitcoin", "BTC", "₿")
-//            ),
-//            walletAddress = "TYAdKeFscwKL3F9AKdgJCfHVgcqfwTTwfP",
-//            walletList = listOf(
-//                WalletResponse(
-//                    id = 1,
-//                    uuid = "uuid1",
-//                    user_id = "123",
-//                    currency_code = "BTC",
-//                    balance = "0.0",
-//                    currency = CurrencyDetail(1, "Bitcoin", "BTC", "₿")
-//                ),
-//                WalletResponse(
-//                    id = 2,
-//                    uuid = "uuid2",
-//                    user_id = "123",
-//                    currency_code = "USDT",
-//                    balance = "0.0",
-//                    currency = CurrencyDetail(2, "Tether", "USDT", "$")
-//                ),
-//                WalletResponse(
-//                    id = 3,
-//                    uuid = "uuid3",
-//                    user_id = "123",
-//                    currency_code = "TRX",
-//                    balance = "0.0",
-//                    currency = CurrencyDetail(3, "Tron", "TRX", "TRX")
-//                )
-//            )
-//        )
-//    }
-//}
-
-

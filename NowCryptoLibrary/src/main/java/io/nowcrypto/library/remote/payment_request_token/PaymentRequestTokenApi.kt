@@ -7,7 +7,7 @@ import retrofit2.http.POST
 interface PaymentRequestTokenApi {
     @POST("payment/request/create")
     suspend fun getPaymentRequestToken(
-        @Header("X-Manual-Secret-Key") secretKey: String, // Pass "Bearer $secretKey" here
+        @Header("Authorization") authHeader: String,
         @Body request: PaymentRequestTokenRequest
     ): PaymentRequestTokenResponse
 }

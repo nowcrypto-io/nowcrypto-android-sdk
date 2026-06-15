@@ -8,15 +8,12 @@ import androidx.lifecycle.viewModelScope
 import io.nowcrypto.library.data.session.SessionManager
 import io.nowcrypto.library.domain.device_id.DeviceIdProvider
 import io.nowcrypto.library.domain.register.RegisterUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import javax.inject.Inject
 
-@HiltViewModel
-class RegisterViewModel @Inject constructor(
+class RegisterViewModel(
     private val registerUseCase: RegisterUseCase,
     private val sessionManager: SessionManager,
     private val deviceIdProvider: DeviceIdProvider,
@@ -59,17 +56,14 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun register() {
-        // 1. Username check
         usernameError = username.isBlank()
 
-        // 2. Proper Email Validation
         emailError = when {
             email.isBlank() -> "Email cannot be empty"
             !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Invalid email format"
             else -> ""
         }
 
-        // 3. Strict Password Validation
         passwordError = when {
             password.isBlank() -> "Password cannot be empty"
             password.length < 8 -> "Password must be at least 8 characters"
@@ -80,14 +74,12 @@ class RegisterViewModel @Inject constructor(
             else -> ""
         }
 
-        // 4. Confirm Password Validation
         confirmPasswordError = when {
             confirmPassword.isBlank() -> "Please confirm your password"
             confirmPassword != password -> "Passwords do not match"
             else -> ""
         }
 
-        // 5. Updated Guard Clause
         val isFormInvalid = usernameError ||
                 emailError.isNotEmpty() ||
                 passwordError.isNotEmpty() ||
@@ -106,7 +98,6 @@ class RegisterViewModel @Inject constructor(
                     sessionManager.saveSession(result.token, false, result.userName, result.profilePictureUrl)
                     _registerUiState.value = RegisterUiState.RegisterSuccess(result.message)
                 } else {
-                    // If success is false or token is missing, it's an error
                     val errorMsg = result.message
                     _registerUiState.value = RegisterUiState.RegisterError(errorMsg)
                 }
@@ -114,7 +105,6 @@ class RegisterViewModel @Inject constructor(
                 val errorBody = e.response()?.errorBody()?.string()
                 val errorMessage = if (!errorBody.isNullOrEmpty()) {
                     try {
-                        // Parse JSON error response from Laravel
                         val json = JSONObject(errorBody)
                         json.optString("message", "Server error")
                     } catch (_: Exception) {
