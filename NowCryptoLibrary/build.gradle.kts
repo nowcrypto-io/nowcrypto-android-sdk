@@ -64,7 +64,7 @@ afterEvaluate {
 
                 groupId = "com.github.gemeauxph"
                 artifactId = "nowcrypto-sdk"
-                version = "0.0.4"
+                version = "0.0.5"
             }
         }
     }
