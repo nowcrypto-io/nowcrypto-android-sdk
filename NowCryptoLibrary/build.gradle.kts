@@ -13,7 +13,7 @@ plugins {
 android {
     namespace = "io.nowcrypto.sdk"
 
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -64,7 +64,7 @@ afterEvaluate {
 
                 groupId = "com.github.gemeauxph"
                 artifactId = "nowcrypto-sdk"
-                version = "0.0.2"
+                version = "0.0.3"
             }
         }
     }
