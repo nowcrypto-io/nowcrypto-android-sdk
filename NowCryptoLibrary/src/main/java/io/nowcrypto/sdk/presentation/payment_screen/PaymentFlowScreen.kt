@@ -160,7 +160,7 @@ fun PaymentFlowScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Image(
-                    painter = painterResource(id = R.drawable.logo),
+                    painter = painterResource(id = R.drawable.nowcrypto_logo),
                     contentDescription = "NowCrypto Logo",
                     modifier = Modifier
                         .fillMaxWidth()

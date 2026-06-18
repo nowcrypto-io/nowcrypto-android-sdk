@@ -34,7 +34,7 @@ fun LoadingScreen(message: String = "Loading…") {
     ) {
 
         Image(
-            painter = painterResource(id = R.drawable.logo),
+            painter = painterResource(id = R.drawable.nowcrypto_logo),
             contentDescription = "NowCrypto Logo",
             modifier = Modifier
                 .fillMaxWidth()
