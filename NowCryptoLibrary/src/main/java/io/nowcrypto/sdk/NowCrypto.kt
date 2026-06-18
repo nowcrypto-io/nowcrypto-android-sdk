@@ -132,9 +132,19 @@ object NowCrypto {
         }
     }
 
+    @JvmSynthetic
     @JvmStatic
-    fun getSupportedCurrencies(context: Context, listener: NowCryptoListener<List<String>>) {
-        getSupportedCurrencies(context) { result -> result.handle(listener) }
+    fun getSupportedCurrencies(
+        context: Context,
+        listener: NowCryptoListener<List<String>>
+    ) {
+        getSupportedCurrencies(context) { result ->
+            when (result) {
+                is NowCryptoResult.Success -> listener.onSuccess(result.data)
+                is NowCryptoResult.Error -> listener.onError(result.message)
+                else -> {}
+            }
+        }
     }
 
     /**
@@ -189,9 +199,24 @@ object NowCrypto {
         }
     }
 
+    @JvmSynthetic
     @JvmStatic
-    fun getPaymentRequestToken(context: Context, secretKey: String, amount: Double, currency: String, network: String, listener: NowCryptoListener<String>) {
-        getPaymentRequestToken(context, secretKey, amount, currency, network) { result -> result.handle(listener) }
+    fun getPaymentRequestToken(
+        context: Context,
+        secretKey: String,
+        amount: Double,
+        currency: String,
+        network: String,
+        listener: NowCryptoListener<String>
+    ) {
+        // Call the Callback version and map it directly to the listener methods
+        getPaymentRequestToken(context, secretKey, amount, currency, network) { result ->
+            when (result) {
+                is NowCryptoResult.Success -> listener.onSuccess(result.data)
+                is NowCryptoResult.Error -> listener.onError(result.message)
+                else -> {}
+            }
+        }
     }
 
     /**
@@ -247,11 +272,26 @@ object NowCrypto {
         }
     }
 
+    @JvmSynthetic
     @JvmStatic
-    fun getSubscriptionRequestToken(context: Context, secretKey: String, amount: Double, currency: String, network: String, subId: String, listener: NowCryptoListener<String>) {
-        getSubscriptionRequestToken(context, secretKey, amount, currency, network, subId) { result -> result.handle(listener) }
+    fun getSubscriptionRequestToken(
+        context: Context,
+        secretKey: String,
+        amount: Double,
+        currency: String,
+        network: String,
+        subId: String,
+        listener: NowCryptoListener<String>
+    ) {
+        // Call the Callback version and map it directly to the listener methods
+        getSubscriptionRequestToken(context, secretKey, amount, currency, network, subId) { result ->
+            when (result) {
+                is NowCryptoResult.Success -> listener.onSuccess(result.data)
+                is NowCryptoResult.Error -> listener.onError(result.message)
+                else -> {}
+            }
+        }
     }
-
     /**
      * Get subscription list
      */
@@ -308,9 +348,20 @@ object NowCrypto {
         }
     }
 
+    @JvmSynthetic
     @JvmStatic
-    fun getSubscriptionList(context: Context, listener: NowCryptoListener<List<NowCryptoSubscriptionItem>>) {
-        getSubscriptionList(context) { result -> result.handle(listener) }
+    fun getSubscriptionList(
+        context: Context,
+        listener: NowCryptoListener<List<NowCryptoSubscriptionItem>>
+    ) {
+        // Call the Callback version and map it directly to the listener methods
+        getSubscriptionList(context) { result ->
+            when (result) {
+                is NowCryptoResult.Success -> listener.onSuccess(result.data)
+                is NowCryptoResult.Error -> listener.onError(result.message)
+                else -> {}
+            }
+        }
     }
 
     /**
@@ -321,7 +372,7 @@ object NowCrypto {
         context: Context,
         callback: NowCryptoCallback<ActiveSubscriptionResult>
     ) {
-        Log.d("CryptoDebug", "start")
+
         // Fail fast if the developer forgot to call NowCrypto.init()
         val publicKey = try {
             getRequiredPublicKey()
@@ -343,7 +394,6 @@ object NowCrypto {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = getQueryActiveSubscriptionUseCase.execute(publicKey, deviceId)
-                Log.d("CryptoDebug", "Raw Response Object: $response")
 
                 withContext(Dispatchers.Main) {
                     if (response.success) {
@@ -363,7 +413,6 @@ object NowCrypto {
                     }
                 }
             } catch (e: Exception) {
-                Log.e("CryptoDebug", "CRASH INSIDE COROUTINE!", e)
                 withContext(Dispatchers.Main) {
                     val errorMessage = if (e is retrofit2.HttpException) {
                         // Parse the JSON error body manually
@@ -384,9 +433,20 @@ object NowCrypto {
         }
     }
 
+    @JvmSynthetic
     @JvmStatic
-    fun queryActiveSubscription(context: Context, listener: NowCryptoListener<ActiveSubscriptionResult>) {
-        queryActiveSubscription(context) { result -> result.handle(listener) }
+    fun queryActiveSubscription(
+        context: Context,
+        listener: NowCryptoListener<ActiveSubscriptionResult>
+    ) {
+        // Call the Callback version and map it directly to the listener methods
+        queryActiveSubscription(context) { result ->
+            when (result) {
+                is NowCryptoResult.Success -> listener.onSuccess(result.data)
+                is NowCryptoResult.Error -> listener.onError(result.message)
+                else -> {}
+            }
+        }
     }
 
     /**
@@ -441,10 +501,23 @@ object NowCrypto {
         }
     }
 
+    @JvmSynthetic
     @JvmStatic
     @JvmOverloads
-    fun getPaymentStatus(context: Context, paymentRequestToken: String? = null, trxId: String? = null, listener: NowCryptoListener<PaymentStatusResponse>) {
-        getPaymentStatus(context, paymentRequestToken, trxId) { result -> result.handle(listener) }
+    fun getPaymentStatus(
+        context: Context,
+        paymentRequestToken: String? = null,
+        trxId: String? = null,
+        listener: NowCryptoListener<PaymentStatusResponse>
+    ) {
+        // Call the Callback version and map it directly to the listener methods
+        getPaymentStatus(context, paymentRequestToken, trxId) { result ->
+            when (result) {
+                is NowCryptoResult.Success -> listener.onSuccess(result.data)
+                is NowCryptoResult.Error -> listener.onError(result.message)
+                else -> {}
+            }
+        }
     }
 
     // Internal Notifiers for Activity Communication
