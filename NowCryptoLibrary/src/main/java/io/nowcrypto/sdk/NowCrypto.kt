@@ -365,7 +365,7 @@ object NowCrypto {
     }
 
     /**
-     * Get subscription list
+     * Get active subscription
      */
     @JvmSynthetic
     @JvmStatic
