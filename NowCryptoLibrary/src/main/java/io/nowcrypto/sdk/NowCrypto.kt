@@ -222,6 +222,7 @@ object NowCrypto {
     /**
      * Generate subscription payment request token
      */
+    @JvmSynthetic
     @JvmStatic
     fun getSubscriptionRequestToken(
         context: Context,
@@ -272,7 +273,6 @@ object NowCrypto {
         }
     }
 
-    @JvmSynthetic
     @JvmStatic
     fun getSubscriptionRequestToken(
         context: Context,
