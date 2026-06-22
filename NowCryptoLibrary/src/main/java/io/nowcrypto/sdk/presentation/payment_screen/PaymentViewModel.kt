@@ -150,11 +150,11 @@ class PaymentViewModel(
 
         viewModelScope.launch {
 
-            if (sessionManager.isGuest()) {
+            //if (sessionManager.isGuest()) {
                 registerDevice()
-            } else {
-                getUserDetails()
-            }
+            //} else {
+            //    getUserDetails()
+            //}
         }
     }
 
@@ -199,7 +199,7 @@ class PaymentViewModel(
             unixTimeStamp = result.unixTimeStamp
             startDatabaseSyncTimer(unixTimeStamp)
 
-            Log.d("PaymentViewModel", result.toString())
+            //Log.d("PaymentViewModel", result.toString())
             registeredOrLoggedIn = true
 
             setDeviceId(deviceId)
@@ -246,12 +246,12 @@ class PaymentViewModel(
             _paymentUiState.value = PaymentUiState.RegisterDeviceError("Network error: ${e.localizedMessage}")
 
         } catch (e: Exception) {
-            Log.e("CryptoDebug", e.toString())
+            //Log.e("CryptoDebug", e.toString())
             _paymentUiState.value = PaymentUiState.RegisterDeviceError("Unexpected error: ${e.localizedMessage}")
         }
     }
 
-    suspend fun getUserDetails() {
+    suspend fun getUserDetails2() {
         if (registeredOrLoggedIn || apiKey == null) return
 
         _paymentUiState.value = PaymentUiState.RegisterDeviceLoading
@@ -269,7 +269,7 @@ class PaymentViewModel(
             unixTimeStamp = result.unixTimeStamp
             startDatabaseSyncTimer(unixTimeStamp)
 
-            Log.d("PaymentViewModel", result.toString())
+            //Log.d("PaymentViewModel", result.toString())
             registeredOrLoggedIn = true
 
             setEnvironment(if (result.environment == "LIVE") Environment.LIVE.value else Environment.TEST.value)
@@ -348,7 +348,7 @@ class PaymentViewModel(
 
                 _balance.value = balanceResponse.balance
 
-                Log.d("PaymentViewModel", "Wallets fetch result: $balanceResponse")
+                //Log.d("PaymentViewModel", "Wallets fetch result: $balanceResponse")
 
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
@@ -391,7 +391,7 @@ class PaymentViewModel(
             _paymentUiState.value = PaymentUiState.PaymentLoading
             try {
                 val result = payViaCryptoUseCase.execute(deviceIdProvider.getDeviceId(), apiKey!!, paymentRequestToken)
-                Log.d("PaymentViewModel", "Payment fetch result: $result")
+                //Log.d("PaymentViewModel", "Payment fetch result: $result")
 
                 if (result.success) {
                     _paymentUiState.value = PaymentUiState.PaymentSuccess(result)
@@ -467,7 +467,7 @@ class PaymentViewModel(
                     _addFundUiState.value = AddFundUiState.Idle
                 }
 
-                Log.d("PaymentViewModel", "$result")
+                //Log.d("PaymentViewModel", "$result")
 
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
@@ -491,7 +491,7 @@ class PaymentViewModel(
                     "Server error: ${e.message()}"
                 }
 
-                Log.e("PaymentViewModel", errorMessage)
+                //Log.e("PaymentViewModel", errorMessage)
 
                 _addFundUiState.value = AddFundUiState.Error(errorMessage)
                 delay(2000)

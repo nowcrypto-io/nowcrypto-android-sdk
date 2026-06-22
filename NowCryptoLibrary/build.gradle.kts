@@ -62,9 +62,9 @@ afterEvaluate {
 
                 from(components["release"])
 
-                groupId = "com.github.gemeauxph"
-                artifactId = "nowcrypto-sdk"
-                version = "0.0.7"
+                groupId = "com.github.nowcrypto-io"
+                artifactId = "nowcrypto-android-sdk"
+                version = "0.0.2"
             }
         }
     }

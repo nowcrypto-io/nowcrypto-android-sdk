@@ -111,7 +111,7 @@ object NowCrypto {
                 }
             } catch (e: Exception) {
 
-                Log.e("CryptoDebug", "CRASH INSIDE COROUTINE!", e)
+                //Log.e("CryptoDebug", "CRASH INSIDE COROUTINE!", e)
 
                 withContext(Dispatchers.Main) {
                     val errorMessage = if (e is retrofit2.HttpException) {
