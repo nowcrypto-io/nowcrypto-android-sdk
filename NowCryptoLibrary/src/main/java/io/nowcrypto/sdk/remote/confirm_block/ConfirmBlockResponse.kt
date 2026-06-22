@@ -9,5 +9,5 @@ data class ConfirmBlockResponse(
     val success: Boolean,
     val confirmations: Int,
     val status: String? = null,
-    val message: String?
+    val message: String? = null
 )

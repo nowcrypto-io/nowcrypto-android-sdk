@@ -10,6 +10,6 @@ data class LoginResponse(
     val message: String,
     val status: String? = null,
     val token: String? = null,
-    val userName: String?,
-    val profilePictureUrl: String?
+    val userName: String? = null,
+    val profilePictureUrl: String? = null
 )

@@ -9,5 +9,5 @@ data class PaymentResponse(
     val success: Boolean,
     val message: String,
     val trxId: String? = null,
-    val status: String?
+    val status: String? = null
 )

@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 data class RegisterResponse(
     val success: Boolean,
     val message: String,
-    val status: String?,
-    val token: String?,
-    val userName: String?,
-    val profilePictureUrl: String?
+    val status: String? = null,
+    val token: String? = null,
+    val userName: String? = null,
+    val profilePictureUrl: String? = null
 )
