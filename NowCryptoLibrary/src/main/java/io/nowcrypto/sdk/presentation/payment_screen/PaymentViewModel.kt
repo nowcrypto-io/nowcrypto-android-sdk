@@ -150,11 +150,11 @@ class PaymentViewModel(
 
         viewModelScope.launch {
 
-            //if (sessionManager.isGuest()) {
+            if (sessionManager.isGuest()) {
                 registerDevice()
-            //} else {
-            //    getUserDetails()
-            //}
+            } else {
+                getUserDetails()
+            }
         }
     }
 
@@ -219,12 +219,26 @@ class PaymentViewModel(
                 isSubscription = true
             }
 
-            sessionManager.saveSession(
-                "",
-                true,
-                null,
-                null
-            )
+            if (result.token != null) {
+                token = result.token
+                sessionManager.saveSession(
+                    result.token,
+                    false,
+                    result.userName,
+                    result.profilePictureUrl
+                )
+
+                _isGuest.value = sessionManager.isGuest()
+                _userName.value = sessionManager.getUsername()
+                _profilePictureUrl.value = sessionManager.getProfilePictureUrl()
+            } else {
+                sessionManager.saveSession(
+                    "",
+                    true,
+                    null,
+                    null
+                )
+            }
 
         } catch (e: retrofit2.HttpException) {
             val errorBody = e.response()?.errorBody()?.string()
@@ -251,7 +265,7 @@ class PaymentViewModel(
         }
     }
 
-    suspend fun getUserDetails2() {
+    suspend fun getUserDetails() {
         if (registeredOrLoggedIn || apiKey == null) return
 
         _paymentUiState.value = PaymentUiState.RegisterDeviceLoading
