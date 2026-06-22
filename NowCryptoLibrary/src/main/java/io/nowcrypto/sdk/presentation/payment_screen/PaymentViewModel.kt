@@ -147,13 +147,16 @@ class PaymentViewModel(
     }
 
     fun registerDeviceOrGetExistingUser() {
-
         viewModelScope.launch {
-
             if (sessionManager.isGuest()) {
                 registerDevice()
             } else {
-                getUserDetails()
+                // Try to auto-login. If it fails (e.g. stale token after reinstall),
+                // clear local session and fallback to registerDevice.
+                val success = getUserDetails()
+                if (!success) {
+                    registerDevice()
+                }
             }
         }
     }
@@ -219,27 +222,14 @@ class PaymentViewModel(
                 isSubscription = true
             }
 
-            if (result.token != null) {
-                token = result.token
-                sessionManager.saveSession(
-                    result.token,
-                    false,
-                    result.userName,
-                    result.profilePictureUrl
-                )
+            sessionManager.saveSession(
+                "",
+                true,
+                null,
+                null
+            )
 
-                _isGuest.value = sessionManager.isGuest()
-                _userName.value = sessionManager.getUsername()
-                _profilePictureUrl.value = sessionManager.getProfilePictureUrl()
-            } else {
-                sessionManager.saveSession(
-                    "",
-                    true,
-                    null,
-                    null
-                )
-            }
-
+            updateGuestStatus()
         } catch (e: retrofit2.HttpException) {
             val errorBody = e.response()?.errorBody()?.string()
             val errorMessage = if (!errorBody.isNullOrEmpty()) {
@@ -265,8 +255,9 @@ class PaymentViewModel(
         }
     }
 
-    suspend fun getUserDetails() {
-        if (registeredOrLoggedIn || apiKey == null) return
+    suspend fun getUserDetails(): Boolean {
+        if (registeredOrLoggedIn || apiKey == null)
+            return false
 
         _paymentUiState.value = PaymentUiState.RegisterDeviceLoading
         try {
@@ -314,19 +305,21 @@ class PaymentViewModel(
                 _isGuest.value = sessionManager.isGuest()
                 _userName.value = sessionManager.getUsername()
                 _profilePictureUrl.value = sessionManager.getProfilePictureUrl()
+
+                startFetchingBalance()
+                return true
             }
 
-            startFetchingBalance()
-
+            return false
         } catch (e: retrofit2.HttpException) {
 
             if (e.code() == 401) {
                 // Because TokenAuthenticator already ran sessionManager.clearToken(),
                 // we just need to update the UI to force a re-login.
-                Log.d("PaymentViewModel", "Session Expired")
-                _paymentUiState.value = PaymentUiState.SessionExpired("Session expired. Please restart the process.")
-                registeredOrLoggedIn = false
-                return
+                Log.d("NowCrypto", "Session Expired")
+                //_paymentUiState.value = PaymentUiState.SessionExpired("Session expired. Please restart the process.")
+                //registeredOrLoggedIn = false
+                return false
             }
 
             val errorBody = e.response()?.errorBody()?.string()
@@ -342,13 +335,18 @@ class PaymentViewModel(
                 "Server error: ${e.message()}"
             }
 
-            _paymentUiState.value = PaymentUiState.RegisterDeviceError(errorMessage)
-
+           // _paymentUiState.value = PaymentUiState.RegisterDeviceError(errorMessage)
+            Log.d("NowCrypto", errorMessage)
+            return false
         } catch (e: java.io.IOException) {
-            _paymentUiState.value = PaymentUiState.RegisterDeviceError("Network error: ${e.localizedMessage}")
+           // _paymentUiState.value = PaymentUiState.RegisterDeviceError("Network error: ${e.localizedMessage}")
+            Log.d("NowCrypto", "Network error: ${e.localizedMessage}")
+            return false
 
         } catch (e: Exception) {
-            _paymentUiState.value = PaymentUiState.RegisterDeviceError("Unexpected error: ${e.localizedMessage}")
+           // _paymentUiState.value = PaymentUiState.RegisterDeviceError("Unexpected error: ${e.localizedMessage}")
+            Log.d("NowCrypto", "Unexpected error: ${e.localizedMessage}")
+            return false
         }
     }
 
