@@ -542,19 +542,21 @@ class PaymentViewModel(
                     transactionId
                 }
 
-                var confirmedBlocks = 0
-                val maxBlocks = 19
+                if (!isTestMode) {
+                    var confirmedBlocks = 0
+                    val maxBlocks = 19
 
-                while (confirmedBlocks < maxBlocks) {
-                    val result = confirmBlockUseCase.execute(transactionId)
-                    // Assuming result contains the number of confirmed blocks
-                    confirmedBlocks = result.confirmations
+                    while (confirmedBlocks < maxBlocks) {
+                        val result = confirmBlockUseCase.execute(transactionId)
+                        // Assuming result contains the number of confirmed blocks
+                        confirmedBlocks = result.confirmations
 
-                    _addFundUiState.value = AddFundUiState.VerifyingBlocks(confirmedBlocks)
+                        _addFundUiState.value = AddFundUiState.VerifyingBlocks(confirmedBlocks)
 
-                    if (confirmedBlocks >= maxBlocks) break
+                        if (confirmedBlocks >= maxBlocks) break
 
-                    delay(5000) // Poll every 5 seconds
+                        delay(5000) // Poll every 5 seconds
+                    }
                 }
 
                 val result = payViaTransactionIdUseCase.execute(deviceId!!,apiKey!!, finalTrxId, paymentRequestToken)
