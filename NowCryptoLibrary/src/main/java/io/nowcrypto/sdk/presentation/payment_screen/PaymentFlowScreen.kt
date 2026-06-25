@@ -164,7 +164,7 @@ fun PaymentFlowScreen(
                     contentDescription = "NowCrypto Logo",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(35.dp)
+                        .height(45.dp)
                         .padding(bottom = 15.dp),
                     contentScale = ContentScale.Fit
                 )
