@@ -23,7 +23,8 @@ fun PaymentScreen(
     apiKey: String,
     paymentRequestToken: String,
     onSuccess: (String) -> Unit,
-    onError: (String) -> Unit
+    onError: (String) -> Unit,
+    onCancel: () -> Unit
 ) {
 
     viewModel.setApiKey(apiKey)
@@ -131,6 +132,9 @@ fun PaymentScreen(
         }
         is PaymentUiState.SessionExpired -> {
             LoadingScreen("Session expired, redirecting…")
+        }
+        is PaymentUiState.PaymentCancel -> {
+            onCancel()
         }
         PaymentUiState.Idle -> {}
     }

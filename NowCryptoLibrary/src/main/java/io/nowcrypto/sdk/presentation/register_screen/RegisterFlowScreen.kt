@@ -2,6 +2,8 @@ package io.nowcrypto.sdk.presentation.register_screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,10 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Visibility
@@ -42,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -56,8 +61,10 @@ import androidx.navigation.NavController
 import io.nowcrypto.sdk.presentation.ui.theme.TextColor
 import io.nowcrypto.sdk.R
 import io.nowcrypto.sdk.presentation.Screen
+import io.nowcrypto.sdk.presentation.ui.theme.BorderGray
 import io.nowcrypto.sdk.presentation.ui.theme.LineGray
 import io.nowcrypto.sdk.presentation.ui.theme.PrimaryColor
+import io.nowcrypto.sdk.presentation.ui.theme.SecondaryTextColor
 
 @Composable
 fun RegisterFlowScreen(
@@ -67,30 +74,44 @@ fun RegisterFlowScreen(
 ) {
     val scrollState = rememberScrollState()
 
-    Box(modifier = Modifier.fillMaxSize().imePadding()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding(),
+        contentAlignment = Alignment.TopEnd
+    ) {
 
-        var hasPopped by remember { mutableStateOf(false) }
-
-        IconButton(
-            onClick = {
-                if (!hasPopped) {
+        Box(
+            modifier = Modifier
+                .padding(top = 40.dp, end = 24.dp)
+                .size(38.dp)
+                .clip(CircleShape)
+                .zIndex(1f)
+                .background(Color.White)
+                .border(
+                    1.dp,
+                    BorderGray,
+                    CircleShape
+                )
+                .clickable {
                     val popped = navController.popBackStack(
                         route = Screen.PaymentScreen.route,
                         inclusive = false
                     )
-                    if (popped) {
-                        hasPopped = true // prevent multiple pops
+
+                    if (!popped) {
+                        navController.navigate(Screen.PaymentScreen.route) {
+                            popUpTo(0)
+                        }
                     }
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-                .zIndex(1f) // ensures above the Column
+                },
+            contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Close"
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                contentDescription = "Back",
+                tint = TextColor,
+                modifier = Modifier.size(22.dp)
             )
         }
 
@@ -108,16 +129,16 @@ fun RegisterFlowScreen(
                 contentDescription = "NowCrypto Logo",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(45.dp)
-                    .padding(bottom = 5.dp),
-                contentScale = ContentScale.Fit
+                    .height(50.dp),
+                contentScale = ContentScale.Fit,
             )
 
             Text(
-                text = "Register",
+                text = "CREATE ACCOUNT",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     color = TextColor,
-                    fontSize = 22.sp
+                    fontSize = 14.sp,
+                    letterSpacing = 1.2.sp
                 ),
                 textAlign = TextAlign.Center
             )

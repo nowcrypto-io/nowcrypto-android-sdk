@@ -62,6 +62,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onSuccess = { message ->
                                     handlePaymentSuccess(message)
+                                },
+                                onCancel = {
+                                    handlePaymentCancelled()
                                 }
                             )
                         }

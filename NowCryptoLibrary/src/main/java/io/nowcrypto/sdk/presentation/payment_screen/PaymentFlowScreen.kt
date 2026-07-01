@@ -97,7 +97,6 @@ import android.util.Base64
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.graphics.asImageBitmap
@@ -400,13 +399,13 @@ fun PaymentFlowScreen(
                                 CircleShape
                             )
                             .clickable {
-                                navController.popBackStack()
+                                viewModel.cancel()
                             },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back",
+                            contentDescription = "Cancel",
                             tint = TextColor,
                             modifier = Modifier.size(22.dp)
                         )
@@ -554,6 +553,9 @@ fun PaymentFlowScreen(
             }
 
             if (viewModel.environment == Environment.TEST.value) {
+
+                Spacer(modifier = Modifier.height(6.dp))
+
                 Text(
                     text = "Test Mode",
                     fontSize = 14.sp,
@@ -824,6 +826,8 @@ fun PaymentFlowScreen(
                     fontSize = 17.sp,
                 )
 
+                Spacer(modifier = Modifier.height(6.dp))
+
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -831,14 +835,14 @@ fun PaymentFlowScreen(
                 ) {
 
                     Text(
-                        text = "Register",
+                        text = "Login",
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = PrimaryColor,
                             fontWeight = FontWeight.Bold
                         ),
                         fontSize = 17.sp,
                         modifier = Modifier.clickable {
-                            navController.navigate(Screen.RegistrationScreen.route)
+                            navController.navigate(Screen.LoginScreen.route)
                         }
                     )
 
@@ -855,14 +859,14 @@ fun PaymentFlowScreen(
                     Spacer(modifier = Modifier.width(7.dp))
 
                     Text(
-                        text = "Login",
+                        text = "Register",
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = PrimaryColor,
                             fontWeight = FontWeight.Bold
                         ),
                         fontSize = 17.sp,
                         modifier = Modifier.clickable {
-                            navController.navigate(Screen.LoginScreen.route)
+                            navController.navigate(Screen.RegistrationScreen.route)
                         }
                     )
                 }

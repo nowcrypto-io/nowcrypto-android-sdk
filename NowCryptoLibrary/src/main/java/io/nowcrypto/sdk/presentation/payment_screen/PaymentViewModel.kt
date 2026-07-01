@@ -198,6 +198,10 @@ class PaymentViewModel(
         }
     }
 
+    fun cancel() {
+        _paymentUiState.value = PaymentUiState.PaymentCancel("")
+    }
+
     fun clearSession() {
         viewModelScope.launch {
             sessionManager.clearSession()

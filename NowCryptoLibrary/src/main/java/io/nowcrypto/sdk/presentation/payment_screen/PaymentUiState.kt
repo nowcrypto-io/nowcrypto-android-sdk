@@ -41,5 +41,8 @@ sealed class PaymentUiState {
 
     @Keep
     data class PaymentExpired(val message: String) : PaymentUiState()
+
+    @Keep
+    data class PaymentCancel(val message: String) : PaymentUiState()
 }
 

@@ -38,7 +38,7 @@ fun LoadingScreen(message: String = "Loading…") {
             contentDescription = "NowCrypto Logo",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(45.dp)
+                .height(55.dp)
                 .padding(bottom = 5.dp),
             contentScale = ContentScale.Fit
         )
