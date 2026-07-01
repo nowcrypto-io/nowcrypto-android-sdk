@@ -83,9 +83,6 @@ class PaymentViewModel(
     private val _addFundUiState = MutableStateFlow<AddFundUiState>(AddFundUiState.Idle)
     val addFundUiState: StateFlow<AddFundUiState> = _addFundUiState
 
-    private val _supportedCurrencies = MutableLiveData<List<String>?>()
-    val supportedCurrencies: LiveData<List<String>?> = _supportedCurrencies
-
     private val _balance = MutableLiveData<String?>()
     val balance: LiveData<String?> = _balance
 
@@ -97,6 +94,46 @@ class PaymentViewModel(
 
     private val _profilePictureUrl = MutableStateFlow<String?>(null)
     val profilePictureUrl: MutableStateFlow<String?> = _profilePictureUrl
+
+    private val _trxId = MutableStateFlow<String?>(null)
+    val trxId: StateFlow<String?> = _trxId.asStateFlow()
+
+    // Instructions & Social Media Links
+    private val _instructionMessage = MutableStateFlow<String?>(null)
+    val instructionMessage: StateFlow<String?> = _instructionMessage.asStateFlow()
+
+    private val _instructionText1 = MutableStateFlow<String?>(null)
+    val instructionText1: StateFlow<String?> = _instructionText1.asStateFlow()
+
+    private val _instructionText2 = MutableStateFlow<String?>(null)
+    val instructionText2: StateFlow<String?> = _instructionText2.asStateFlow()
+
+    private val _instructionText3 = MutableStateFlow<String?>(null)
+    val instructionText3: StateFlow<String?> = _instructionText3.asStateFlow()
+
+    private val _instructionLink1 = MutableStateFlow<String?>(null)
+    val instructionLink1: StateFlow<String?> = _instructionLink1.asStateFlow()
+
+    private val _instructionLink2 = MutableStateFlow<String?>(null)
+    val instructionLink2: StateFlow<String?> = _instructionLink2.asStateFlow()
+
+    private val _instructionLink3 = MutableStateFlow<String?>(null)
+    val instructionLink3: StateFlow<String?> = _instructionLink3.asStateFlow()
+
+    private val _emailSupport = MutableStateFlow<String?>(null)
+    val emailSupport: StateFlow<String?> = _emailSupport.asStateFlow()
+
+    private val _twitterLink = MutableStateFlow<String?>(null)
+    val twitterLink: StateFlow<String?> = _twitterLink.asStateFlow()
+
+    private val _telegramLink = MutableStateFlow<String?>(null)
+    val telegramLink: StateFlow<String?> = _telegramLink.asStateFlow()
+
+    private val _merchantName = MutableStateFlow<String?>(null)
+    val merchantName: StateFlow<String?> = _merchantName.asStateFlow()
+
+    private val _merchantLogo = MutableStateFlow<String?>(null)
+    val merchantLogo: StateFlow<String?> = _merchantLogo.asStateFlow()
 
     var walletAddress: String? = null
     var environment: String = Environment.TEST.value
@@ -168,7 +205,6 @@ class PaymentViewModel(
             _isGuest.value = true
             walletAddress = null
             token = null
-            _supportedCurrencies.postValue(emptyList())
             _profilePictureUrl.value = null
             _userName.value = null
             registerDevice()
@@ -196,11 +232,24 @@ class PaymentViewModel(
                 _paymentUiState.value = PaymentUiState.RegisterDeviceError("Wallet address is null")
             }
 
-            _supportedCurrencies.postValue(result.supportedCurrencies)
             _balance.value = result.balance
             walletAddress = result.walletAddress
             unixTimeStamp = result.unixTimeStamp
             startDatabaseSyncTimer(unixTimeStamp)
+
+            _trxId.value = result.trxId
+            _instructionMessage.value = result.instructionMessage
+            _instructionText1.value = result.instructionText1
+            _instructionText2.value = result.instructionText2
+            _instructionText3.value = result.instructionText3
+            _instructionLink1.value = result.instructionLink1
+            _instructionLink2.value = result.instructionLink2
+            _instructionLink3.value = result.instructionLink3
+            _emailSupport.value = result.emailSupport
+            _twitterLink.value = result.twitterLink
+            _telegramLink.value = result.telegramLink
+            _merchantName.value = result.merchantName
+            _merchantLogo.value = result.merchantLogo
 
             //Log.d("PaymentViewModel", result.toString())
             registeredOrLoggedIn = true
@@ -268,11 +317,24 @@ class PaymentViewModel(
                 _paymentUiState.value = PaymentUiState.RegisterDeviceError("Wallet address is null")
             }
 
-            _supportedCurrencies.postValue(result.supportedCurrencies)
             _balance.value = result.balance
             walletAddress = result.walletAddress
             unixTimeStamp = result.unixTimeStamp
             startDatabaseSyncTimer(unixTimeStamp)
+
+            _trxId.value = result.trxId
+            _instructionMessage.value = result.instructionMessage
+            _instructionText1.value = result.instructionText1
+            _instructionText2.value = result.instructionText2
+            _instructionText3.value = result.instructionText3
+            _instructionLink1.value = result.instructionLink1
+            _instructionLink2.value = result.instructionLink2
+            _instructionLink3.value = result.instructionLink3
+            _emailSupport.value = result.emailSupport
+            _twitterLink.value = result.twitterLink
+            _telegramLink.value = result.telegramLink
+            _merchantName.value = result.merchantName
+            _merchantLogo.value = result.merchantLogo
 
             //Log.d("PaymentViewModel", result.toString())
             registeredOrLoggedIn = true

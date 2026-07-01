@@ -9,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -71,7 +70,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -85,6 +83,8 @@ import io.nowcrypto.sdk.R
 import io.nowcrypto.sdk.presentation.Screen
 import io.nowcrypto.sdk.presentation.ui.theme.Black
 import io.nowcrypto.sdk.presentation.ui.theme.LineGray
+import io.nowcrypto.sdk.presentation.ui.theme.SubtleGray
+import io.nowcrypto.sdk.presentation.ui.theme.BorderGray
 import io.nowcrypto.sdk.presentation.ui.theme.PrimaryColor
 import io.nowcrypto.sdk.presentation.ui.theme.SecondaryTextColor
 import io.nowcrypto.sdk.presentation.ui.theme.TertiaryTextColor
@@ -94,10 +94,21 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 import android.graphics.BitmapFactory
 import android.util.Base64
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Store
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import io.nowcrypto.sdk.data.ApiConstants.BASE_URL
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -106,17 +117,31 @@ fun PaymentFlowScreen(
     navController: NavController,
     onSuccess: (String) -> Unit,
 ) {
-    val supportedCurrencies by viewModel.supportedCurrencies.observeAsState()
     val balance by viewModel.balance.observeAsState()
     val scrollState = rememberScrollState()
     val context = LocalContext.current
 
-    // local state to track selected currency code
-    var selectedCurrency by remember { mutableStateOf(viewModel.currency) }
-
     val isGuest by viewModel.isGuest.collectAsState()
     val userName by viewModel.userName.collectAsState()
     val profilePictureUrl by viewModel.profilePictureUrl.collectAsState()
+    val trxId by viewModel.trxId.collectAsState()
+
+    // --- Instruction Messages ---
+    val instructionMessage by viewModel.instructionMessage.collectAsState()
+    val instructionText1 by viewModel.instructionText1.collectAsState()
+    val instructionText2 by viewModel.instructionText2.collectAsState()
+    val instructionText3 by viewModel.instructionText3.collectAsState()
+    val instructionLink1 by viewModel.instructionLink1.collectAsState()
+    val instructionLink2 by viewModel.instructionLink2.collectAsState()
+    val instructionLink3 by viewModel.instructionLink3.collectAsState()
+
+    // --- Support & Social Media Links ---
+    val emailSupport by viewModel.emailSupport.collectAsState()
+    val twitterLink by viewModel.twitterLink.collectAsState()
+    val telegramLink by viewModel.telegramLink.collectAsState()
+
+    val merchantName by viewModel.merchantName.collectAsState()
+    val merchantLogo by viewModel.merchantLogo.collectAsState()
 
     val clipboardManager = LocalClipboardManager.current
     var showDialog by remember { mutableStateOf(false) }
@@ -139,38 +164,7 @@ fun PaymentFlowScreen(
         onDismiss = { showQrDialog = false }
     )
 
-    Scaffold(
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 15.dp),
-                horizontalAlignment =  Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Powered by",
-                    style = MaterialTheme.typography.displayMedium.copy(
-                        color = TertiaryTextColor,
-                        lineHeight = 14.sp
-                    ),
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Image(
-                    painter = painterResource(id = R.drawable.nowcrypto_logo),
-                    contentDescription = "NowCrypto Logo",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(45.dp)
-                        .padding(bottom = 15.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
 
         Column(
             modifier = Modifier
@@ -187,126 +181,290 @@ fun PaymentFlowScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 10.dp),
-                horizontalArrangement = Arrangement.End
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box {
 
-                    Row(
-                        modifier = Modifier
-                            .border(
-                                width = 1.dp,
-                                color = Color.Gray.copy(alpha = 0.5f),
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .background(
-                                color = Color.LightGray.copy(alpha = 0.1f),
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .clip(RoundedCornerShape(20.dp))
-                            .clickable { showMenu = true }
-                            .padding(horizontal = 8.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = userName ?: "Guest",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = TextColor,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
+                // =========================
+                // Left: Merchant Info
+                // =========================
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // Profile Picture from URL
+                    if (!merchantLogo.isNullOrBlank()) {
+                        // Display API Logo if available
                         AsyncImage(
-                            model = profilePictureUrl,
-                            contentDescription = "Profile Picture",
+                            model = merchantLogo,
+                            contentDescription = "$merchantName",
                             modifier = Modifier
-                                .size(26.dp)
+                                .size(34.dp)
                                 .clip(CircleShape)
-                                .border(0.5.dp, Color.LightGray, CircleShape),
+                                .border(
+                                    1.dp,
+                                    BorderGray,
+                                    CircleShape
+                                ),
                             contentScale = ContentScale.Crop,
-                            placeholder = painterResource(R.drawable.ic_profile_placeholder), // Local fallback
-                            error = painterResource(R.drawable.ic_profile_placeholder)
+                            placeholder = painterResource(R.drawable.nowcrypto_logo),
+                            error = painterResource(R.drawable.nowcrypto_logo)
                         )
-                    }
-
-                    var showLogoutDialog by remember { mutableStateOf(false) }
-
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false },
-                        offset = DpOffset(x = 0.dp, y = 4.dp)
-                    ) {
-                        if (isGuest) {
-                            DropdownMenuItem(
-                                text = { Text("Login", color = TextColor) },
-                                onClick = {
-                                    navController.navigate(Screen.LoginScreen.route)
-                                    showMenu = false
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null, tint = TextColor)
-                                }
-                            )
-                        } else {
-                            DropdownMenuItem(
-                                text = { Text("Logout", color = TextColor) },
-                                onClick = {
-                                    showMenu = false // Close the menu
-                                    showLogoutDialog = true // Open the confirmation popup
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null, tint = TextColor)
-                                }
+                    } else {
+                        // Fallback: Perfectly matching circular placeholder box
+                        Box(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(CircleShape)
+                                .background(PrimaryColor)
+                                .border(
+                                    1.dp,
+                                    BorderGray,
+                                    CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Store,
+                                contentDescription = "$merchantName",
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
 
-                    if (showLogoutDialog) {
-                        AlertDialog(
-                            onDismissRequest = { showLogoutDialog = false },
-                            title = { Text(text = "Confirm Logout") },
-                            text = { Text("Are you sure you want to log out? You will need to sign in again to access your account.") },
-                            confirmButton = {
-                                TextButton(
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    Text(
+                        text = merchantName ?: "Merchant",
+                        modifier = Modifier
+                            .padding(start = 4.dp)
+                            .weight(1f),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                // =========================
+                // Right: Profile + Back
+                // =========================
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Box {
+
+                        AsyncImage(
+                            model = profilePictureUrl,
+                            contentDescription = "Profile",
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .border(
+                                    1.dp,
+                                    BorderGray,
+                                    CircleShape
+                                )
+                                .clickable {
+                                    showMenu = true
+                                },
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(R.drawable.ic_profile_placeholder),
+                            error = painterResource(R.drawable.ic_profile_placeholder)
+                        )
+
+                        var showLogoutDialog by remember { mutableStateOf(false) }
+
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+
+                            // Show username header if they are logged in and userName is available
+                            if (!isGuest && !userName.isNullOrBlank()) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Column {
+                                            Text(
+                                                text = "Signed in as",
+                                                fontSize = 11.sp,
+                                                color = TertiaryTextColor // Or your equivalent muted text color
+                                            )
+                                            Text(
+                                                text = userName!!,
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = TextColor,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    },
+                                    enabled = false, // Makes it a non-clickable header item
+                                    onClick = {}
+                                )
+
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                    color = BorderGray.copy(alpha = 0.5f)
+                                )
+                            }
+
+                            if (isGuest) {
+                                DropdownMenuItem(
+                                    text = { Text("Login", color = TextColor) },
                                     onClick = {
-                                        viewModel.clearSession()
-                                        showLogoutDialog = false
+                                        navController.navigate(Screen.LoginScreen.route)
+                                        showMenu = false
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.Login,
+                                            contentDescription = null,
+                                            tint = TextColor
+                                        )
                                     }
-                                ) {
-                                    Text("Logout", color = Color.Red)
-                                }
+                                )
+                            } else {
+                                DropdownMenuItem(
+                                    text = { Text("Logout", color = TextColor) },
+                                    onClick = {
+                                        showMenu = false
+                                        showLogoutDialog = true
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.Logout,
+                                            contentDescription = null,
+                                            tint = TextColor
+                                        )
+                                    }
+                                )
+                            }
+                        }
+
+                        if (showLogoutDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showLogoutDialog = false },
+                                title = {
+                                    Text("Confirm Logout")
+                                },
+                                text = {
+                                    Text("Are you sure you want to log out? You will need to sign in again to access your account.")
+                                },
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.clearSession()
+                                            showLogoutDialog = false
+                                        }
+                                    ) {
+                                        Text(
+                                            "Logout",
+                                            color = Color.Red
+                                        )
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(
+                                        onClick = {
+                                            showLogoutDialog = false
+                                        }
+                                    ) {
+                                        Text(
+                                            "Cancel",
+                                            color = TextColor
+                                        )
+                                    }
+                                },
+                                shape = RoundedCornerShape(16.dp),
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(
+                                1.dp,
+                                BorderGray,
+                                CircleShape
+                            )
+                            .clickable {
+                                navController.popBackStack()
                             },
-                            dismissButton = {
-                                TextButton(onClick = { showLogoutDialog = false }) {
-                                    Text("Cancel", color = TextColor)
-                                }
-                            },
-                            shape = RoundedCornerShape(16.dp),
-                            containerColor = MaterialTheme.colorScheme.surface
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = "Back",
+                            tint = TextColor,
+                            modifier = Modifier.size(22.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = buildAnnotatedString {
-                    append("${viewModel.amount} ")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-                    withStyle(style = SpanStyle(color = PrimaryColor)) {
-                        append(viewModel.currency)
+                // Invisible placeholder
+                IconButton(
+                    onClick = {},
+                    enabled = false
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.Transparent
+                    )
+                }
+
+                Text(
+                    text = buildAnnotatedString {
+                        append("${viewModel.amount} ")
+
+                        withStyle(style = SpanStyle(color = PrimaryColor)) {
+                            append(viewModel.currency)
+                        }
+                    },
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 35.sp,
+                        color = TextColor
+                    )
+                )
+
+                IconButton(
+                    onClick = {
+                        clipboardManager.setText(
+                            AnnotatedString(viewModel.amount.toString())
+                        )
                     }
-                },
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 35.sp,
-                    color = TextColor // This remains the default for the "amount"
-                ),
-                textAlign = TextAlign.Center
-            )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = "Copy Amount",
+                        modifier = Modifier.size(20.dp),
+                        tint = SubtleGray
+                    )
+                }
+            }
 
             if (viewModel.isSubscription) {
                 Text(
@@ -319,8 +477,80 @@ fun PaymentFlowScreen(
                     ),
                     textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .padding(top = 3.dp)
+                        .padding(top = 2.dp)
                 )
+            } else {
+                Text(
+                    text = "Amount to Send",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = TextColor,
+                        fontSize = 16.sp
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(CircleShape)
+                    .background(Color.LightGray.copy(alpha = 0.08f))
+                    .border(
+                        1.dp,
+                        BorderGray,
+                        CircleShape
+                    )
+                    .padding(start = 12.dp, end = 4.dp, top = 2.4.dp, bottom = 2.4.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(
+                                SpanStyle(
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TertiaryTextColor
+                                )
+                            ) {
+                                append("ID: ")
+                            }
+
+                            withStyle(
+                                SpanStyle(
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = SecondaryTextColor
+                                )
+                            ) {
+                                append("$trxId")
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        fontSize = 13.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    IconButton(
+                        onClick = {
+                            clipboardManager.setText(
+                                AnnotatedString(viewModel.transactionId)
+                            )
+                        },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = "Copy Transaction ID",
+                            modifier = Modifier.size(16.dp),
+                            tint = SubtleGray
+                        )
+                    }
+                }
             }
 
             if (viewModel.environment == Environment.TEST.value) {
@@ -347,37 +577,6 @@ fun PaymentFlowScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                supportedCurrencies?.forEach { curr ->
-                    val isSelected = curr == selectedCurrency
-
-                    Button(
-                        onClick = {
-                            //onCurrencySelected(code)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) PrimaryColor
-                            else MaterialTheme.colorScheme.secondary
-                        ),
-                        contentPadding = PaddingValues(
-                            vertical = 5.dp,
-                            horizontal = 14.dp
-                        )
-                    ) {
-                        Text(
-                            text = curr,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                            else MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             if (viewModel.qrCodeUrl != null) {
                 Base64Image(
                     base64String = viewModel.qrCodeUrl!!,
@@ -391,7 +590,7 @@ fun PaymentFlowScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp)
+                    .padding(bottom = 4.dp)
             ) {
                 Text(
                     text = "Wallet Address",
@@ -426,12 +625,6 @@ fun PaymentFlowScreen(
                             clipboardManager.setText(
                                 AnnotatedString(address)
                             )
-
-                            Toast.makeText(
-                                context,
-                                "Copied to clipboard",
-                                Toast.LENGTH_SHORT
-                            ).show()
                         }
                     },
                     modifier = Modifier.size(32.dp)
@@ -473,7 +666,21 @@ fun PaymentFlowScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "• Send exactly ${viewModel.amount} ${viewModel.currency} to this wallet address on ${viewModel.network} network",
+                    text = buildAnnotatedString {
+                        append("Please ")
+
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = TextColor)) {
+                            append("TRANSFER THE EXACT AMOUNT")
+                        }
+
+                        append(" shown above to the wallet address provided via the ")
+
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = TextColor)) {
+                            append(viewModel.network)
+                        }
+
+                        append(" network.")
+                    },
                     textAlign = TextAlign.Start,
                     fontSize = 13.sp,
                     color = SecondaryTextColor,
@@ -593,11 +800,23 @@ fun PaymentFlowScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            HowToPaySection(
+                instructionMessage,
+                instructionText1,
+                instructionText2,
+                instructionText3,
+                instructionLink1,
+                instructionLink2,
+                instructionLink3
+            )
+
             if (isGuest) {
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "Login or Register to use your account balance",
+                    text = "Want to use your account balance?",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = TextColor
@@ -649,7 +868,44 @@ fun PaymentFlowScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            AppFooter(
+                emailSupport = emailSupport,
+                twitterLink = twitterLink,
+                telegramLink = telegramLink
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 15.dp),
+                horizontalAlignment =  Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Powered by",
+                    style = MaterialTheme.typography.displayMedium.copy(
+                        color = TertiaryTextColor,
+                        lineHeight = 12.sp
+                    ),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Image(
+                    painter = painterResource(id = R.drawable.nowcrypto_logo),
+                    contentDescription = "NowCrypto Logo",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .padding(bottom = 15.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
     }
 }
@@ -1082,6 +1338,231 @@ fun Base64Image(base64String: String, modifier: Modifier = Modifier) {
             bitmap = it.asImageBitmap(),
             contentDescription = "Receiving wallet qr code",
             modifier = modifier
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun HowToPaySection(
+    instructionMessage: String?,
+    instructionText1: String?,
+    instructionText2: String?,
+    instructionText3: String?,
+    instructionLink1: String?,
+    instructionLink2: String?,
+    instructionLink3: String?
+) {
+    val uriHandler = LocalUriHandler.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.LightGray.copy(alpha = 0.15f))
+            .border(1.dp, BorderGray, RoundedCornerShape(12.dp))
+            .padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally // Centers elements horizontally inside Column
+    ) {
+        Text(
+            text = instructionMessage ?: "How to pay?",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextColor,
+            textAlign = TextAlign.Center, // Centers text string alignment
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // FlowRow automatically wraps items into 2+ lines if screen space runs out
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Pill 1
+            if (!instructionText1.isNullOrBlank() && !instructionLink1.isNullOrBlank()) {
+                PayMethodPill(
+                    text = instructionText1,
+                    modifier = Modifier.padding(horizontal = 4.dp) // This will work now!
+                ) {
+                    uriHandler.openUri(instructionLink1)
+                }
+            }
+
+            // Pill 2
+            if (!instructionText2.isNullOrBlank() && !instructionLink2.isNullOrBlank()) {
+                PayMethodPill(
+                    text = instructionText2,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                ) {
+                    uriHandler.openUri(instructionLink2)
+                }
+            }
+
+            // Pill 3
+            if (!instructionText3.isNullOrBlank() && !instructionLink3.isNullOrBlank()) {
+                PayMethodPill(
+                    text = instructionText3,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                ) {
+                    uriHandler.openUri(instructionLink3)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PayMethodPill(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = Color.White,
+        border = BorderStroke(
+            1.dp,
+            PrimaryColor
+        ),
+        modifier = modifier.clip(CircleShape)
+    ) {
+        Text(
+            text = text,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = PrimaryColor,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun AppFooter(
+    emailSupport: String?,
+    twitterLink: String?,
+    telegramLink: String?
+) {
+    // Fetch the UriHandler instance
+    val uriHandler = LocalUriHandler.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+
+        HorizontalDivider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            thickness = 1.dp,
+            color = BorderGray
+        )
+
+        // Underlined Legal / Nav Links Row
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Open the URI directly on click
+            FooterLink(text = "Privacy Policy") { uriHandler.openUri("$BASE_URL/privacy-policy") }
+            FooterBullet()
+            FooterLink(text = "Terms of Service") { uriHandler.openUri("$BASE_URL/terms-conditions-policy") }
+            FooterBullet()
+            FooterLink(text = "Contact Us") { uriHandler.openUri("$BASE_URL/contact") }
+            FooterBullet()
+            FooterLink(text = "Create Ticket") { uriHandler.openUri("$BASE_URL/user/ticket") }
+        }
+
+        // Muted helper message
+        Text(
+            text = "Please contact us if you have any questions.",
+            fontSize = 14.sp,
+            color = SecondaryTextColor,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 0.dp)
+        )
+
+        // Social / Contact Tray
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (!emailSupport.isNullOrBlank()) {
+                SocialCircularButton(icon = Icons.Default.Email, contentDescription = "Email Support") {
+                    uriHandler.openUri("mailto:$emailSupport")
+                }
+            }
+            if (!twitterLink.isNullOrBlank()) {
+                SocialCircularButton(icon = Icons.Default.Email, contentDescription = "Twitter") {
+                    uriHandler.openUri(twitterLink)
+                }
+            }
+            if (!telegramLink.isNullOrBlank()) {
+                SocialCircularButton(icon = Icons.Default.Email, contentDescription = "Telegram") {
+                    uriHandler.openUri(telegramLink)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FooterLink(
+    text: String,
+    onClick: () -> Unit
+) {
+    Text(
+        text = text,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Medium,
+        color = SecondaryTextColor,
+        textDecoration = TextDecoration.Underline,
+        modifier = Modifier
+            .clip(CircleShape)
+            .clickable { onClick() }
+            .padding(horizontal = 4.dp)
+    )
+}
+
+@Composable
+fun FooterBullet() {
+    Text(
+        text = "•",
+        fontSize = 12.sp,
+        color = SecondaryTextColor.copy(alpha = 0.6f),
+        modifier = Modifier.padding(horizontal = 4.dp)
+    )
+}
+
+@Composable
+fun SocialCircularButton(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .clip(CircleShape)
+            .background(Color(0xFF2D3748)) // Sleek dark gray color canvas background
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = Color.White, // Enforced pure white asset tint
+            modifier = Modifier.size(18.dp)
         )
     }
 }
