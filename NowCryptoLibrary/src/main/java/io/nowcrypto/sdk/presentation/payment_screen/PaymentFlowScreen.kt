@@ -94,7 +94,6 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 import android.graphics.BitmapFactory
 import android.util.Base64
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -105,6 +104,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -1498,17 +1498,17 @@ fun AppFooter(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (!emailSupport.isNullOrBlank()) {
-                SocialCircularButton(icon = Icons.Default.Email, contentDescription = "Email Support") {
+                SocialCircularButton(icon = ImageVector.vectorResource(id = R.drawable.email), contentDescription = "Email Support") {
                     uriHandler.openUri("mailto:$emailSupport")
                 }
             }
             if (!twitterLink.isNullOrBlank()) {
-                SocialCircularButton(icon = Icons.Default.Email, contentDescription = "Twitter") {
+                SocialCircularButton(icon = ImageVector.vectorResource(id = R.drawable.x), contentDescription = "Twitter") {
                     uriHandler.openUri(twitterLink)
                 }
             }
             if (!telegramLink.isNullOrBlank()) {
-                SocialCircularButton(icon = Icons.Default.Email, contentDescription = "Telegram") {
+                SocialCircularButton(icon = ImageVector.vectorResource(id = R.drawable.telegram), contentDescription = "Telegram") {
                     uriHandler.openUri(telegramLink)
                 }
             }

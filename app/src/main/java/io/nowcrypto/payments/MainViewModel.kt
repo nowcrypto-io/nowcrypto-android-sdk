@@ -19,6 +19,9 @@ class MainViewModel : ViewModel() {
     var publicLiveKey by mutableStateOf("public_live_qU0r64zl5kd579YZEA6ZIy4cfkzAY1VccWlFu99TiWSM1CxZLATvVT3G8xQ9lLyq")
     var secretLiveKey by mutableStateOf("secret_live_vnzaL5aMF13sertJdGcmDVaKLmKxoOB2Y4vM9bZQlNhr6tsN2RcmWBwYFa9RZMkd")
 
+//    var publicLiveKey by mutableStateOf("public_live_wTCU35rAVWDUfBt2IhuRDUYUYMxicTUUUh8xXGGZXCO8mWFZhk380CuItlB2xBMu")
+//    var secretLiveKey by mutableStateOf("secret_live_DsQ2ZqRdK9IGKnyHs5EdIzsTTGtdX1JJduqnI2Kge8rKoPI2Gd8wfiSOSAgQkRYm")
+
     // Test Keys
     var publicTestKey by mutableStateOf("public_test_Qa38pWs3maJ48zHvhyQO1f6xJIExRARSyW4aaCYQJ9pszxzfyJCzWHdpGyK6MK8x")
     var secretTestKey by mutableStateOf("secret_test_cWjRSEg9klcoPzeh5GYdURFzAqRTp1L8UN6RgYLrtwCle81Z1VADRTCBytLeDwmr")
