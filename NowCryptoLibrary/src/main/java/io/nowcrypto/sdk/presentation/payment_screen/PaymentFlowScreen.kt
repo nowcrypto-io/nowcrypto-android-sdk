@@ -877,7 +877,8 @@ fun PaymentFlowScreen(
             AppFooter(
                 emailSupport = emailSupport,
                 twitterLink = twitterLink,
-                telegramLink = telegramLink
+                telegramLink = telegramLink,
+                onLiveChatClick = { navController.navigate(Screen.LiveChatScreen.route) }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -1448,7 +1449,8 @@ fun PayMethodPill(
 fun AppFooter(
     emailSupport: String?,
     twitterLink: String?,
-    telegramLink: String?
+    telegramLink: String?,
+    onLiveChatClick: () -> Unit
 ) {
     // Fetch the UriHandler instance
     val uriHandler = LocalUriHandler.current
@@ -1483,6 +1485,8 @@ fun AppFooter(
             FooterLink(text = "Contact Us") { uriHandler.openUri("$BASE_URL/contact") }
             FooterBullet()
             FooterLink(text = "Create Ticket") { uriHandler.openUri("$BASE_URL/user/ticket") }
+            FooterBullet()
+            FooterLink(text = "Live Chat") { onLiveChatClick() }
         }
 
         // Muted helper message
@@ -1582,5 +1586,3 @@ private fun decodeBase64ToBitmap(base64String: String): android.graphics.Bitmap?
         null
     }
 }
-
-

@@ -102,6 +102,12 @@ class MainActivity : ComponentActivity() {
                                 message = message
                             )
                         }
+
+                        composable(
+                            route = Screen.LiveChatScreen.route
+                        ) {
+                            LiveChatScreen(navController = navController)
+                        }
                     }
                 }
             }
