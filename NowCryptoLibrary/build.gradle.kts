@@ -64,7 +64,7 @@ afterEvaluate {
 
                 groupId = "com.github.nowcrypto-io"
                 artifactId = "nowcrypto-android-sdk"
-                version = "1.0.2"
+                version = "1.0.3"
             }
         }
     }
